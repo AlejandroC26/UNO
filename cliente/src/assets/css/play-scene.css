@@ -1,0 +1,148 @@
+.play-scene {
+    display: grid;
+    min-width: 100vw;
+    min-height: 100vh;
+    background: rgb(255, 132, 132);
+}
+
+.play-scene {
+    padding: 1.2rem;
+    box-sizing: border-box;
+    display: grid;
+    grid-template: 
+        "corner1  top    corner2"
+        "left     center right"
+        "corner3  bottom corner4";
+}
+
+/* LEFT */
+.left {
+    display: flex;
+    grid-area: left;
+    gap: 2rem;
+}
+/* TOP */
+.top {
+    gap: 2rem;
+    display: grid;
+    grid-area: top;
+    position: relative;
+}
+.top .cards {
+    top: 0;
+    left: 3rem;
+}
+.top .player {
+    top: 2rem;
+    left: -6rem;
+}
+/* RIGHT */
+.right {
+    display: flex;
+    grid-area: right;
+    gap: 2rem;
+    position: relative;
+}
+.right .player {
+    right: 1.5rem;
+}
+.right .cards {
+    transform: skewY(8deg);
+    top: 0rem;
+    right: 1.8rem;
+}
+
+/* BOTTOM */
+.bottom {
+    display: flex;
+    grid-area: bottom;
+    gap: 2rem;
+    position: relative;
+    z-index: 100;
+}
+.bottom .player {
+    left: -8rem;
+    bottom: 1rem;
+}
+.bottom .cards {
+    bottom: -1rem;
+}
+
+/* LEFT */
+.left .player {
+    left: 1.5rem;
+}
+.left .cards {
+    transform: skewY(-8deg);
+    top: 2.5rem;
+    left: 5.4rem;
+}
+
+.left .cards,
+.top .cards,
+.right .cards,
+.bottom .cards {
+    position: relative;
+}
+
+.left .card,
+.top .card,
+.right .card,
+.bottom .card {
+    transition: transform .1s ease-in-out;;
+    position: absolute;
+}
+
+.bottom .card:hover {
+    transform: translateY(-2rem);
+}
+
+.player {
+    position: absolute;
+}
+.player .photo {
+    background: aqua;
+    border: solid 5px #fff;
+    border-radius: .8rem;
+    width: 75px;
+    height: 75px;
+    box-shadow: 0 0 3px rgb(95, 95, 95);
+}
+.player .name {
+    font-size: 1rem;
+    color: #fff;
+    font-family: 'Arial';
+    text-shadow: 0 0 2px #000;
+    margin-top: .2rem;
+    margin-left: .3rem;
+}
+
+/* CENTER */
+.center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    grid-area: center;
+}
+
+.center .table {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.center .table .card {
+    position: absolute;
+    transition: box-shadow 0.2s ease-in-out;
+}
+.center .table .card:last-child:hover {
+    box-shadow: 0 0 10px rgb(255, 251, 1);
+}
+
+.left .card,
+.top .card,
+.right .card {
+    transform: scale(.85);
+}
