@@ -24,7 +24,6 @@ export function getRoomUsers(room) {
 export function setPlayersOrder(){
     users = users.sort(() => {return Math.random() - 0.5});
     users[0].throw = true;
-    console.log(users);
     return users;
 }
 
@@ -34,12 +33,16 @@ export function setUserCards(id, cards) {
     users[index] = {...users[index], cards};
     return users[index];
 }
+
 // Remove a user card
 export function removeUserCard(id, key) {
     const index = users.findIndex(user => user.id === id);
     let cards = users[index].cards.filter(card => card.key !== key);
     users[index] = {...users[index], throw: false, cards};
-    console.log(users[index]);
+    
+    if(users[index+1]) users[index+1].throw = true;
+    else users[0].throw = true;
+
     return users[index];
 }
 
@@ -55,7 +58,10 @@ export function throwCard(room, card) {
     throwedCards.push(throwed);
     return throwedCards.filter(card => card.room === room);
 }
-
+// Get throwed cards
+export function getThrowedCards(room){
+    return throwedCards.filter(card => card.room === room)
+}
 
 
 // User leaves chat

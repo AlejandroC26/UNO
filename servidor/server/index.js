@@ -6,7 +6,16 @@ import cors from "cors";
 
 import memory_cards from "./utils/cards.js";
 import { 
-    getRoomUsers, userJoin, userLeave, setUserCards, setDeckCards, throwCard, getCurrentUser, removeUserCard, setPlayersOrder
+    getRoomUsers, 
+    userJoin, 
+    userLeave, 
+    setUserCards, 
+    setDeckCards, 
+    throwCard, 
+    getCurrentUser, 
+    removeUserCard, 
+    setPlayersOrder,
+    getThrowedCards
 } 
 from './utils/users.js';
 
@@ -95,7 +104,12 @@ io.on('connection', socket => {
 
     socket.on('throwCard', (card) => {
         const user = getCurrentUser(socket.id);
+        if(user.throw === false) 
+            return io.to(user.id).emit('error', 'Turno no válido');
         // Send throwed cards
+        let throwed = getThrowedCards(user.room);
+        return console.log(throwed.pop());
+
         io.to(user.room).emit('throwedCards', {
             room: user.room,
             cards: throwCard(user.room, card)
@@ -106,7 +120,6 @@ io.on('connection', socket => {
             username: player.username,
             cards: player.cards
         });
-        // Send player turn
     })
 
     // Runs when client disconnects

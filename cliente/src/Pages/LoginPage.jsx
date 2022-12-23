@@ -16,8 +16,8 @@ export default class LoginPage extends React.Component {
         super(props);
         this.state = {
             playing: false,
-            username: '',
-            room: '',
+            username: 'david',
+            room: '123',
 
             player1: false,
             player2: false,
@@ -50,6 +50,9 @@ export default class LoginPage extends React.Component {
         });
         socket.on('cards', ({username, cards})=> {
             this.setState({player1: {username, cards}})
+        });
+        socket.on('error', (msg)=> {
+            console.log(msg);
         })
         socket.on('roomUsers', (users)=>console.log(users));
     }
@@ -71,11 +74,11 @@ export default class LoginPage extends React.Component {
                 <h1>Registro</h1>
                 <div>
                     <p>Nombre de usuario</p>
-                    <input type="text" onChange={(e)=>this.setState({username: e.target.value})} />
+                    <input type="text" value={this.state.username} onChange={(e)=>this.setState({username: e.target.value})} />
                 </div>
                 <div>
                     <p>Código de Sala</p>
-                    <input type="text"  onChange={(e)=>this.setState({room: e.target.value})} />
+                    <input type="text" value={this.state.room} onChange={(e)=>this.setState({room: e.target.value})} />
                 </div>
                 <button onClick={()=>this.joinRoom()}>Confirmar</button>
                 <button onClick={()=>this.startGame()}>INICIAR JUEGO</button>
