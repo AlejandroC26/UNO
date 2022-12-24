@@ -10,6 +10,7 @@
     rotate: var(--angulo);
     box-shadow: var(--shadow);
     padding: .5rem;
+    user-select: none;
 }
 
 .card .card-background{

@@ -1,0 +1,20 @@
+.wrapper {
+    z-index: 200;
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, .3);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.wrapper .buttons {
+    margin: .5rem 0;
+    display: flex;
+    justify-content: space-between;
+}
+.wrapper .buttons button {
+    padding: .2rem .2rem;
+    cursor: pointer;
+}

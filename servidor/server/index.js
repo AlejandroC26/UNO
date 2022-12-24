@@ -15,7 +15,9 @@ import {
     getCurrentUser, 
     removeUserCard, 
     setPlayersOrder,
-    getThrowedCards
+    getThrowedCards,
+    getDeckCard,
+    nextTurn
 } 
 from './utils/users.js';
 
@@ -60,7 +62,7 @@ io.on('connection', socket => {
         });
     });
     // Starts the game
-    socket.on('startGame', ({username, room})=> {
+    socket.on('startGame', ()=> {
         const user = getCurrentUser(socket.id);
         const users = getRoomUsers(user.room);
 
@@ -74,16 +76,16 @@ io.on('connection', socket => {
 
         let deckCards = sort_cards.slice(chunk, cards.length);
 
-        // Send first card to users
-        io.to(user.room).emit('throwedCards', {
-            room: user.room,
-            cards: throwCard(user.room, deckCards.filter(card => card.type === 'number')[0])
-        });
         // Send deck cards to users
         io.to(user.room).emit('deckCards', {
             room: user.room,
-            cards: setDeckCards(deckCards)
+            cards: setDeckCards(user.room, deckCards)
         })
+        // Send first card to users
+        io.to(user.room).emit('throwedCards', {
+            room: user.room,
+            cards: throwCard(user.room, deckCards.filter(card => card.type === 'number').pop())
+        });
 
         // Set users cards
         let u = 0;
@@ -107,9 +109,11 @@ io.on('connection', socket => {
         if(user.throw === false) 
             return io.to(user.id).emit('error', 'Turno no válido');
         // Send throwed cards
-        let throwed = getThrowedCards(user.room);
-        return console.log(throwed.pop());
+        let throwed = getThrowedCards(user.room).pop();
 
+        if(throwed.value !== card.value && throwed.color !== card.color)
+            return io.to(user.id).emit('error', 'La carta no es igual');
+        
         io.to(user.room).emit('throwedCards', {
             room: user.room,
             cards: throwCard(user.room, card)
@@ -120,6 +124,37 @@ io.on('connection', socket => {
             username: player.username,
             cards: player.cards
         });
+    });
+    // Get a deck cart to user
+    socket.on('deckCard', ()=>{
+        const user = getCurrentUser(socket.id);
+
+        if(user.throw === false) 
+            return io.to(user.id).emit('error', 'Turno no válido');
+
+        const deckCard = getDeckCard(socket.id, user.room);
+
+        // Send the car
+        io.to(user.id).emit('deckCard', {
+            username: user.username,
+            card: deckCard
+        });
+        // Send the user cards
+        io.to(user.id).emit('cards', {
+            username: user.username,
+            cards: user.cards
+        });
+
+        let throwed = getThrowedCards(user.room).pop();
+
+        if(throwed.value !== deckCard.value && throwed.color !== deckCard.color)
+            return nextTurn(user.id);
+
+        else io.to(user.id).emit('decide', {card: deckCard});
+    });
+    // Skips users turn
+    socket.on('skiptTurn', ()=>{
+        return nextTurn(socket.id);
     })
 
     // Runs when client disconnects

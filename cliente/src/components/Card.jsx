@@ -1,8 +1,7 @@
 import '../assets/css/card.css';
 import UnoIMG from '../assets/img-game/uno.png';
 
-export default function Card(props){
-    var {visible, color, angulo, number, style, clickEvent} = props;
+export default function Card({visible, color, angulo, number, style, clickEvent}){
     style = {...style, '--angulo': angulo}
     return (
         <>
@@ -30,7 +29,7 @@ export default function Card(props){
                 </>
             ) : (<>
                 <div className='card-background hidden-card' style={{"--color":"#000"}}>
-                    <img src={UnoIMG}/>
+                    <img src={UnoIMG} alt=""/>
                 </div>
             </>)
         } </div>

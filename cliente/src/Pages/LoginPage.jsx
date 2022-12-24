@@ -1,6 +1,9 @@
 import React from 'react';
 import io from 'socket.io-client';
 import PlayScene from './PlaySceme';
+import '../assets/css/modal.css';
+import Card from "../components/Card";
+import UnoIMG from '../assets/img-game/uno.png';
 
 const socket = io('http://localhost:4000', {
     query: {"key": "askjdkad132*123"}
@@ -10,6 +13,16 @@ const socket = io('http://localhost:4000', {
 export const throwCard = (card) => {
     socket.emit("throwCard", card);
 }
+
+export const skiptTurn = () => {
+    socket.emit("skiptTurn");
+}
+
+export const deckCard = () => {
+    socket.emit('deckCard')
+}
+
+
 
 export default class LoginPage extends React.Component {
     constructor(props) {
@@ -26,9 +39,32 @@ export default class LoginPage extends React.Component {
 
             deck: [],
             throwed: [],
+
+            decide: false,
         }
     }
-
+    Decide = ({card}) => {
+        return <div className='wrapper'>
+            <div className='content'>
+                <Card 
+                    key={card.key}
+                    visible={true}
+                    number={card.value}
+                    color={card.color}
+                />
+                <div className="buttons">
+                    <button onClick={()=>{
+                        this.setState({decide: false})
+                        skiptTurn()
+                    }}>Conservar</button>
+                    <button onClick={()=>{
+                        this.setState({decide: false})
+                        throwCard(card)
+                    }}>Jugar</button>
+                </div>
+            </div>
+        </div>
+    }
     joinRoom = () => {
         var { username, room } = this.state;
         socket.emit('joinRoom', { username, room });
@@ -48,27 +84,35 @@ export default class LoginPage extends React.Component {
         socket.on('throwedCards', ({cards})=> {
             this.setState({ throwed: cards });
         });
+        socket.on('decide', ({card})=> {
+            this.setState({decide: card})
+        })
         socket.on('cards', ({username, cards})=> {
             this.setState({player1: {username, cards}})
         });
+        
         socket.on('error', (msg)=> {
             console.log(msg);
         })
         socket.on('roomUsers', (users)=>console.log(users));
     }
     render() {
-        var { playing } = this.state;
+        var { playing, decide } = this.state;
         return <div>
-            {/* FORMULARIO DE INGRESO */}
             {
-                playing ? <PlayScene 
-                    player1={this.state.player1}
-                    player2={this.state.player2}
-                    player3={this.state.player3}
-                    player4={this.state.player4}
-                    throwed={this.state.throwed}
-                    deck={this.state.deck}
-                />
+                decide ? <this.Decide card={decide}/> : ''
+            }
+            {
+                playing ? <>
+                    <PlayScene 
+                        player1={this.state.player1}
+                        player2={this.state.player2}
+                        player3={this.state.player3}
+                        player4={this.state.player4}
+                        throwed={this.state.throwed}
+                        deck={this.state.deck}
+                    />
+                </>
             : 
             <div>
                 <h1>Registro</h1>

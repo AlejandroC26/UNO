@@ -38,6 +38,7 @@ export function setUserCards(id, cards) {
 export function removeUserCard(id, key) {
     const index = users.findIndex(user => user.id === id);
     let cards = users[index].cards.filter(card => card.key !== key);
+    
     users[index] = {...users[index], throw: false, cards};
     
     if(users[index+1]) users[index+1].throw = true;
@@ -47,17 +48,43 @@ export function removeUserCard(id, key) {
 }
 
 // Set the deck cards
-export function setDeckCards(cards){
+export function setDeckCards(room, cards){
+    for (let i = 0; i < cards.length; i++) { cards[i].room = room }
     deckCards = cards;
     return deckCards;
 }
 
+
+export function nextTurn(id){
+    const index = users.findIndex(user => user.id === id);
+    
+    users[index].throw = false;
+
+    if(users[index+1]) users[index+1].throw = true;
+    else users[0].throw = true;
+    return users[index];
+}
+
 // Throw a card
 export function throwCard(room, card) {
+    delete card.angulo;
+    delete card.style;
     const throwed = {...card, room}
+    deckCards.push(throwed);
     throwedCards.push(throwed);
     return throwedCards.filter(card => card.room === room);
 }
+// Get a card of the deck
+export function getDeckCard(id, room) {
+    const index = users.findIndex(user => user.id === id);
+    let deckCard = deckCards.filter(card => card.room === room)[0];
+    // Set new deck cards
+    deckCards = deckCards.filter(card => !(card.key === deckCard.key && card.room === room));
+    // Add the new card to user
+    users[index].cards.push(deckCard);
+    return deckCard;
+}
+
 // Get throwed cards
 export function getThrowedCards(room){
     return throwedCards.filter(card => card.room === room)

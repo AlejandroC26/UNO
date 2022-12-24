@@ -3,7 +3,7 @@ import '../assets/css/play-scene.css';
 
 import { Component, useState, useEffect } from "react";
 
-import { throwCard } from "./LoginPage";
+import { throwCard, deckCard, decide } from "./LoginPage";
 
 function Player1 (props) {
     var { username, cards } = props;
@@ -88,15 +88,11 @@ export default class PlaySceme extends Component {
                 style: {left: left+'px'}
             };
 
-            left = left + 45;
+            left = left + 35;
         }
         if(this.state.cards1.length !== cards.length) this.setState({cards1: cards});
     }
 
-
-    loadDeckCards({cards}){
-        
-    }
     loadThrowedCards(cards){
         let t = 0;
         let bottom = 0;
@@ -120,16 +116,13 @@ export default class PlaySceme extends Component {
     }
 
     componentDidMount(){
-        var { player1, player2, player3, player4, deck, throwed } = this.props;
+        var { player1, player2, player3, player4, throwed } = this.props;
         this.loadFirstUserCards(player1);
-        this.loadDeckCards(deck);
         this.loadThrowedCards(throwed);
     }
     componentDidUpdate() {
-        var { player1, player2, player3, player4, deck, throwed } = this.props;
+        var { player1, player2, player3, player4, throwed } = this.props;
         this.loadFirstUserCards(player1);
-        this.loadDeckCards(deck);
-        console.log(throwed)
         this.loadThrowedCards(throwed);
     }
     render(){
@@ -139,20 +132,12 @@ export default class PlaySceme extends Component {
             <div className="play-scene">
                 { player1 ? <Player1 username = {player1.username} cards = {cards1}  /> : ''}
                 { throwed ? <Throwed cards = {throwed} /> : '' }
-                <div className="center">
-                    <div className="table">
-                        {
-                            deck.map(card => (
-                                <Card 
-                                    visible={true}
-                                    angulo={card.angulo}
-                                    style={card.style}
-                                    number={card.number}
-                                    color={card.color}
-                                />
-                            ))
-                        }
-                    </div>
+                <div className="deck" onClick={()=>deckCard()}>
+                    <Card style={{bottom: "0"}}/>
+                    <Card style={{bottom: "4px"}}/>
+                    <Card style={{bottom: "8px"}}/>
+                    <Card style={{bottom: "12px"}}/>
+                    <Card style={{bottom: "16px"}}/>
                 </div>
 
             </div>
