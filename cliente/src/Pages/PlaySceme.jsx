@@ -1,9 +1,10 @@
-import Card from "../components/Card";
 import '../assets/css/play-scene.css';
+import Card from "../components/Card";
+import UnoIMG from '../assets/img-game/uno-btn.png';
 
-import { Component, useState, useEffect } from "react";
+import { Component } from "react";
 
-import { throwCard, deckCard, decide } from "./LoginPage";
+import { throwCard, deckCard } from "./LoginPage";
 
 function Player1 (props) {
     var { username, cards } = props;
@@ -139,7 +140,9 @@ export default class PlaySceme extends Component {
                     <Card style={{bottom: "12px"}}/>
                     <Card style={{bottom: "16px"}}/>
                 </div>
-
+                {/* <div className='uno-btn'>
+                    <img src={UnoIMG} alt=""/>
+                </div> */}
             </div>
         )
     }

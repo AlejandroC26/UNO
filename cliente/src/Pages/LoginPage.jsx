@@ -2,8 +2,8 @@ import React from 'react';
 import io from 'socket.io-client';
 import PlayScene from './PlaySceme';
 import '../assets/css/modal.css';
+import '../assets/css/uno-btn.css';
 import Card from "../components/Card";
-import UnoIMG from '../assets/img-game/uno.png';
 
 const socket = io('http://localhost:4000', {
     query: {"key": "askjdkad132*123"}

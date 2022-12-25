@@ -1,0 +1,25 @@
+.uno-btn {
+    opacity: .5;
+    width: 150px;
+    border-radius: .7rem;
+    overflow: hidden;
+    position: absolute;
+    bottom: .5rem;
+    right: 1rem;
+    transition: box-shadow .3s ease;
+    box-shadow: 0 0 5px #fff;
+    user-select: none;
+}
+.uno-btn.active {
+    opacity: 1;
+    cursor: pointer;
+    box-shadow: 0 0 .5rem #fff;
+}
+.uno-btn.active:hover {
+    box-shadow: 0 0 2rem #fff;
+}
+.uno-btn img {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
