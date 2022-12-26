@@ -17,7 +17,11 @@ import {
     setPlayersOrder,
     getThrowedCards,
     getDeckCard,
-    nextTurn
+    nextTurn,
+    finishedGame,
+    findUserById,
+    findUserByName,
+    getPlayersOrder
 } 
 from './utils/users.js';
 
@@ -46,7 +50,15 @@ io.use((socket, next)=>{
 
 io.on('connection', socket => {
     socket.on('joinRoom', ({ username, room })=> {
+        if(findUserById(socket.id))
+            return io.to(socket.id).emit('error', 'Usuario ya se encuentra en sala'); 
+        
+        if(findUserByName(username, room))
+            return io.to(socket.id).emit('error', 'Ya hay un usuario con este nombre de usuario');
+
         const user = userJoin(socket.id, username, room);
+        
+        
         socket.join(user.room);
         // Welcome current user
         socket.emit('message', {username: 'Sistem', text: 'Welcome to UNO'})
@@ -81,12 +93,13 @@ io.on('connection', socket => {
             room: user.room,
             cards: setDeckCards(user.room, deckCards)
         })
+        // Get the cards
+        let user_cards = throwCard(user.room, deckCards.filter(card => card.type === 'number').pop())
         // Send first card to users
         io.to(user.room).emit('throwedCards', {
             room: user.room,
-            cards: throwCard(user.room, deckCards.filter(card => card.type === 'number').pop())
+            cards: user_cards
         });
-
         // Set users cards
         let u = 0;
         for (let i = 0; i < cardsOfUsers.length; i += n_cards) {
@@ -101,11 +114,18 @@ io.on('connection', socket => {
         }
 
         // Set order of the game
-        setPlayersOrder()
+        const order = setPlayersOrder();
+        order.forEach(user => {
+            io.to(user.id).emit('order', {
+                order: getPlayersOrder(user.id)
+            });
+        });
     });
 
     socket.on('throwCard', (card) => {
         const user = getCurrentUser(socket.id);
+        const users = getRoomUsers(user.room);
+
         if(user.throw === false) 
             return io.to(user.id).emit('error', 'Turno no válido');
         // Send throwed cards
@@ -118,16 +138,32 @@ io.on('connection', socket => {
             room: user.room,
             cards: throwCard(user.room, card)
         });
+
         var player = removeUserCard(socket.id, card.key);
+
         // Send player cards
         io.to(player.id).emit('cards', {
             username: player.username,
             cards: player.cards
         });
+
+
+        users.forEach(user => {
+            io.to(user.id).emit('order', {
+                order: getPlayersOrder(user.id)
+            });
+        });
+        
+        // User wins
+        if(player.cards.length <= 0) {
+            let data = finishedGame(user.room);
+            return io.to(user.room).emit('winner', { username: user.username, data });
+        }
     });
     // Get a deck cart to user
     socket.on('deckCard', ()=>{
         const user = getCurrentUser(socket.id);
+        const users = getRoomUsers(user.room);
 
         if(user.throw === false) 
             return io.to(user.id).emit('error', 'Turno no válido');
@@ -151,6 +187,8 @@ io.on('connection', socket => {
             return nextTurn(user.id);
 
         else io.to(user.id).emit('decide', {card: deckCard});
+
+
     });
     // Skips users turn
     socket.on('skiptTurn', ()=>{

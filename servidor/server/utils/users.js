@@ -9,6 +9,15 @@ export function userJoin(id, username, room) {
     users.push(user);
     return user;
 }
+// Find players
+export function findUserById(id){
+    return users.find(user => user.id === id);;
+}
+
+export function findUserByName(name, room) {
+    return users.find(user => (user.username === name && user.room === room));;
+}
+
 
 // Get current user
 export function getCurrentUser(id) {
@@ -25,6 +34,14 @@ export function setPlayersOrder(){
     users = users.sort(() => {return Math.random() - 0.5});
     users[0].throw = true;
     return users;
+}
+
+// Get players order
+export function getPlayersOrder(id){
+    const index = users.findIndex(user => user.id === id);
+    var order1 = users.slice(0, index);
+    var order2 = users.slice(index, users.length);
+    return order2.concat(order1);
 }
 
 // Set user cards
@@ -90,7 +107,6 @@ export function getThrowedCards(room){
     return throwedCards.filter(card => card.room === room)
 }
 
-
 // User leaves chat
 export function userLeave(id){
     const index = users.findIndex(user => user.id === id);
@@ -98,4 +114,11 @@ export function userLeave(id){
     if(index != -1) {
         return users.splice(index, 1)[0];
     }
+}
+
+export function finishedGame(room){
+    users = users.filter(user => user.room !== room);
+    deckCards = deckCards.filter(card => card.room !== room);
+    throwedCards = throwedCards.filter(card => card.room !== room);
+    return {users, deckCards, throwedCards}
 }

@@ -1,9 +1,7 @@
 import '../assets/css/play-scene.css';
 import Card from "../components/Card";
-import UnoIMG from '../assets/img-game/uno-btn.png';
 
 import { Component } from "react";
-
 import { throwCard, deckCard } from "./LoginPage";
 
 function Player1 (props) {
@@ -24,6 +22,30 @@ function Player1 (props) {
                         angulo={card.angulo}
                         style={card.style}
                         number={card.value}
+                        color={card.color}
+                    />
+                ))
+            }
+        </div>
+    </div>
+}
+
+function Player (props) {
+    var { position, username, cards } = props;
+    return <div className={position}>
+        <div className="player">
+            <div className="photo"></div>
+            <div className="name">{username}</div>
+        </div>
+        <div className="cards">
+            {
+                cards.map(card => (
+                    <Card 
+                        key={card.key}
+                        visible={false}
+                        angulo={card.angulo}
+                        style={card.style}
+                        number={card.number}
                         color={card.color}
                     />
                 ))
@@ -93,6 +115,32 @@ export default class PlaySceme extends Component {
         }
         if(this.state.cards1.length !== cards.length) this.setState({cards1: cards});
     }
+    loadUserCards(player, {cards}){
+        if(!cards) cards = [];
+        let t = 0;
+        let left = 0;
+        let bottom = 0;
+        // SI 5 ES EL 100% CUANTO ES 1
+        for (let i = 0; i < cards.length; i++) {
+            bottom =  t * 1.5;
+            cards[i] = {
+                ...cards[i], 
+                style: {
+                    bottom: '-'+bottom+'px',
+                    left: left+'px', 
+                }
+            }
+            left = left + 30;
+            if(i >= (cards.length/2)) t--;
+            else t++;
+        }
+        switch (player) {
+            case 1: if(this.state.cards2.length !== cards.length) this.setState({cards2: cards}); break;
+            case 2: if(this.state.cards3.length !== cards.length) this.setState({cards3: cards}); break;
+            case 3: if(this.state.cards4.length !== cards.length) this.setState({cards4: cards}); break;
+        }
+        
+    }
 
     loadThrowedCards(cards){
         let t = 0;
@@ -119,11 +167,17 @@ export default class PlaySceme extends Component {
     componentDidMount(){
         var { player1, player2, player3, player4, throwed } = this.props;
         this.loadFirstUserCards(player1);
+        this.loadUserCards(1, player2);
+        this.loadUserCards(2, player3);
+        this.loadUserCards(3, player4);
         this.loadThrowedCards(throwed);
     }
     componentDidUpdate() {
         var { player1, player2, player3, player4, throwed } = this.props;
         this.loadFirstUserCards(player1);
+        this.loadUserCards(1, player2);
+        this.loadUserCards(2, player3);
+        this.loadUserCards(3, player4);
         this.loadThrowedCards(throwed);
     }
     render(){
@@ -132,6 +186,9 @@ export default class PlaySceme extends Component {
         return (
             <div className="play-scene">
                 { player1 ? <Player1 username = {player1.username} cards = {cards1}  /> : ''}
+                { player2 ? <Player position = "right" username = {player2.username} cards = {cards2}  /> : ''}
+                { player3 ? <Player position = "top" username = {player3.username} cards = {cards3}  /> : ''}
+                { player4 ? <Player position = "left" username = {player4.username} cards = {cards4}  /> : ''}
                 { throwed ? <Throwed cards = {throwed} /> : '' }
                 <div className="deck" onClick={()=>deckCard()}>
                     <Card style={{bottom: "0"}}/>

@@ -8,7 +8,10 @@ import Card from "../components/Card";
 const socket = io('http://localhost:4000', {
     query: {"key": "askjdkad132*123"}
 });
-
+/* const socket = io('http://10.193.129.24:4000/', {
+    query: {"key": "askjdkad132*123"}
+});
+ */
 
 export const throwCard = (card) => {
     socket.emit("throwCard", card);
@@ -32,6 +35,9 @@ export default class LoginPage extends React.Component {
             username: 'david',
             room: '123',
 
+            users: [],
+            order: [],
+
             player1: false,
             player2: false,
             player3: false,
@@ -41,13 +47,32 @@ export default class LoginPage extends React.Component {
             throwed: [],
 
             decide: false,
+            winner: false,
         }
     }
+    resetRoom(){
+        this.setState({
+            playing: false,
+            username: '',
+            room: '',
+            player1: false,
+            player2: false,
+            player3: false,
+            player4: false,
+            deck: [],
+            throwed: [],
+            decide: false,
+            winner: false,
+
+            users: []
+        })
+    }
+
     Decide = ({card}) => {
         return <div className='wrapper'>
             <div className='content'>
                 <Card 
-                    key={card.key}
+                    key={card.key + new Date() }
                     visible={true}
                     number={card.value}
                     color={card.color}
@@ -65,6 +90,17 @@ export default class LoginPage extends React.Component {
             </div>
         </div>
     }
+
+    UsersList = ({users})=> {
+        return <div>
+            <h1>Usuarios</h1>
+            { users.map(user => (
+                <div key={user.id}>{user.username}</div>
+            )) }
+        </div>
+    }
+
+
     joinRoom = () => {
         var { username, room } = this.state;
         socket.emit('joinRoom', { username, room });
@@ -74,7 +110,6 @@ export default class LoginPage extends React.Component {
         var { username, room } = this.state;
         socket.emit('startGame', {username, room});
     }
-
     componentDidMount() {
         socket.on('message', (msg)=>{});
         socket.on('deckCards', ({cards})=> {
@@ -91,17 +126,37 @@ export default class LoginPage extends React.Component {
             this.setState({player1: {username, cards}})
         });
         
+        socket.on('winner', ({username}) => {
+            console.log(username);
+            this.setState({winner: username});
+        })
+
         socket.on('error', (msg)=> {
             console.log(msg);
+        });
+
+        socket.on('order', ({order}) => {
+            console.log(order);
+            if(order.length >= 2) this.setState({player2: {username: order[1].username, cards: order[1].cards}})
+            if(order.length >= 3) this.setState({player3: {username: order[2].username, cards: order[2].cards}})
+            if(order.length >= 4) this.setState({player4: {username: order[3].username, cards: order[3].cards}})
         })
-        socket.on('roomUsers', (users)=>console.log(users));
+        
+        socket.on('roomUsers', ({users})=>{
+            //console.log(users)
+            this.setState({users: users})
+        });
     }
     render() {
-        var { playing, decide } = this.state;
+        var { playing, users, decide, winner } = this.state;
         return <div>
-            {
-                decide ? <this.Decide card={decide}/> : ''
-            }
+            { winner ? <div className='wrapper'>
+                <div className='content'>
+                    <p>!{winner} ha sido el ganador!</p>
+                    <button onClick={()=>this.resetRoom()}>Ir al menú</button>
+                </div>
+            </div> : ''}
+            { decide ? <this.Decide card={decide}/> : ''}
             {
                 playing ? <>
                     <PlayScene 
@@ -126,6 +181,8 @@ export default class LoginPage extends React.Component {
                 </div>
                 <button onClick={()=>this.joinRoom()}>Confirmar</button>
                 <button onClick={()=>this.startGame()}>INICIAR JUEGO</button>
+                <hr />
+                <this.UsersList users={users} />
             </div> 
             }
             
