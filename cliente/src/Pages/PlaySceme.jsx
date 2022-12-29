@@ -41,7 +41,6 @@ function Player (props) {
             {
                 cards.map(card => (
                     <Card 
-                        key={card.key}
                         visible={false}
                         angulo={card.angulo}
                         style={card.style}
